@@ -19,3 +19,4 @@ jobs:
           cd "$HOME/qmk_firmware/keyboards"
           echo "=== keyboards ==="
           ls -R .
+ 
