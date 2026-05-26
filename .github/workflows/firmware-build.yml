@@ -52,7 +52,7 @@ jobs:
       - name: Build firmware
         run: |
           cd "$HOME/qmk_firmware"
-          qmk compile -kb sofle/rev1 -km helios_mine -e CONVERT_TO=helios
+          qmk compile -kb sofle/rev1 -km helios_mine
 
       - name: Upload firmware
         uses: actions/upload-artifact@v4
