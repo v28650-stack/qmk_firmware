@@ -1,4 +1,4 @@
-name: Firmware Build (Reset)
+name: Firmware Build
 
 on:
   push:
@@ -15,27 +15,13 @@ jobs:
       uses: actions/checkout@v4
 
     # -------------------------
-    # FINGERPRINT: PROVE WHICH FILE IS RUNNING
+    # Debug: show env + home
     # -------------------------
-    - name: Workflow fingerprint
+    - name: Show environment info
       run: |
-        echo "=== WORKFLOW FINGERPRINT ==="
-        echo "THIS IS THE REAL firmware-build.yml"
-        echo "Workflow file path: $GITHUB_WORKFLOW"
-        echo "Workflow ref: $GITHUB_REF"
-
-    - name: Show workflow file contents
-      run: |
-        echo "=== WORKFLOW CONTENTS ==="
-        cat .github/workflows/firmware-build.yml || echo "firmware-build.yml not found"
-
-    # -------------------------
-    # FINGERPRINT BEFORE QMK SETUP
-    # -------------------------
-    - name: Fingerprint before QMK setup
-      run: |
-        echo "=== ABOUT TO RUN QMK SETUP ==="
-        grep -R "qmk setup" .github/workflows || echo "grep failed"
+        echo "HOME is: $HOME"
+        ls -la
+        ls -la "$HOME"
 
     # -------------------------
     # QMK + build cache
@@ -57,13 +43,30 @@ jobs:
         key: arm-gcc-${{ runner.os }}
 
     # -------------------------
-    # Install QMK + deps
+    # Install QMK CLI
     # -------------------------
     - name: Install QMK CLI
       run: pip3 install qmk
 
+    # -------------------------
+    # Reset QMK config and set QMK_HOME
+    # -------------------------
+    - name: Reset QMK config and set home
+      run: |
+        echo "=== RESETTING QMK CONFIG ==="
+        rm -rf "$HOME/.qmk" || true
+        qmk config user.qmk_home="${HOME}/qmk_firmware"
+        echo "Current QMK config:"
+        qmk config
+
+    # -------------------------
+    # Setup QMK
+    # -------------------------
     - name: Setup QMK
-      run: qmk setup -H "${{ env.HOME }}/qmk_firmware" --yes
+      run: |
+        echo "=== RUNNING QMK SETUP ==="
+        echo "Expecting QMK home at: ${HOME}/qmk_firmware"
+        qmk setup -H "${HOME}/qmk_firmware" --yes
 
     - name: Install QMK Python dependencies
       working-directory: ${{ env.HOME }}/qmk_firmware
