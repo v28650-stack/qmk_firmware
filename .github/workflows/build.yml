@@ -19,6 +19,10 @@ jobs:
 
     - name: Setup QMK
       run: qmk setup -H ${{ env.HOME }}/qmk_firmware --yes
+   
+    - name: Install QMK Python dependencies
+      working-directory: ${{ env.HOME }}/qmk_firmware
+      run: pip3 install -r requirements.txt
 
     - name: Copy keymap into QMK
       working-directory: ${{ env.HOME }}/qmk_firmware
