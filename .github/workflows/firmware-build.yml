@@ -11,53 +11,50 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-    - name: Install system packages
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          git python3 python3-pip python3-venv \
-          gcc dfu-util dfu-programmer avrdude \
-          binutils-arm-none-eabi gcc-arm-none-eabi libnewlib-arm-none-eabi
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            git python3 python3-pip python3-venv \
+            gcc dfu-util dfu-programmer avrdude \
+            binutils-arm-none-eabi gcc-arm-none-eabi libnewlib-arm-none-eabi dos2unix
 
-    - name: Install QMK CLI
-      run: pip3 install qmk
+      - name: Install QMK CLI
+        run: pip3 install qmk
 
-    # -----------------------------------------
-    # Create QMK config manually (NO heredoc indentation issues)
-    # -----------------------------------------
-    - name: Create QMK config manually
-      run: |
-        mkdir -p "$HOME/.config/qmk"
-        echo "[user]" > "$HOME/.config/qmk/qmk.ini"
-        echo "qmk_home = $HOME/qmk_firmware" >> "$HOME/.config/qmk/qmk.ini"
-        echo "Wrote manual QMK config:"
-        cat "$HOME/.config/qmk/qmk.ini"
+      - name: Create QMK config manually
+        run: |
+          mkdir -p "$HOME/.config/qmk"
+          echo "[user]" > "$HOME/.config/qmk/qmk.ini"
+          echo "qmk_home = $HOME/qmk_firmware" >> "$HOME/.config/qmk/qmk.ini"
+          echo "Wrote manual QMK config:"
+          cat "$HOME/.config/qmk/qmk.ini"
 
-    - name: Setup QMK
-      run: qmk setup -H "$HOME/qmk_firmware" --yes
+      - name: Setup QMK
+        run: qmk setup -H "$HOME/qmk_firmware" --yes
 
-    - name: Install QMK Python dependencies
-      working-directory: ${{ env.HOME }}/qmk_firmware
-      run: pip3 install -r requirements.txt
+      - name: Install QMK Python dependencies
+        working-directory: $HOME/qmk_firmware
+        run: pip3 install -r requirements.txt
 
-    - name: Copy keymap into QMK
-      working-directory: ${{ env.HOME }}/qmk_firmware
-      run: |
-        mkdir -p keyboards/sofle/keymaps/helios_mine
-        cp $GITHUB_WORKSPACE/*.c keyboards/sofle/keymaps/helios_mine/ || true
-        cp $GITHUB_WORKSPACE/*.h keyboards/sofle/keymaps/helios_mine/ || true
-        cp $GITHUB_WORKSPACE/rules.mk keyboards/sofle/keymaps/helios_mine/ || true
-        cp $GITHUB_WORKSPACE/config.h keyboards/sofle/keymaps/helios_mine/ || true
+      - name: Copy keymap into QMK
+        working-directory: $HOME/qmk_firmware
+        run: |
+          mkdir -p keyboards/sofle/keymaps/helios_mine
+          cp $GITHUB_WORKSPACE/*.c keyboards/sofle/keymaps/helios_mine/ || true
+          cp $GITHUB_WORKSPACE/*.h keyboards/sofle/keymaps/helios_mine/ || true
+          cp $GITHUB_WORKSPACE/rules.mk keyboards/sofle/keymaps/helios_mine/ || true
+          cp $GITHUB_WORKSPACE/config.h keyboards/sofle/keymaps/helios_mine/ || true
 
-    - name: Build firmware
-      working-directory: ${{ env.HOME }}/qmk_firmware
-      run: qmk compile -kb sofle/rev1 -km helios_mine -e CONVERT_TO=helios
+      - name: Build firmware
+        working-directory: $HOME/qmk_firmware
+        run: qmk compile -kb sofle/rev1 -km helios_mine -e CONVERT_TO=helios
 
-    - name: Upload firmware
-      uses: actions/upload-artifact@v4
-      with:
-        name: sofle-helios-firmware
-        path: ${{ env.HOME }}/qmk_firmware/.build
+      - name: Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: sofle-helios-firmware
+          path: $HOME/qmk_firmware/.build
