@@ -1,69 +1,21 @@
-name: Firmware Build
+name: QMK Diagnostic
 
 on:
-  push:
-    branches:
-      - '**'
   workflow_dispatch:
 
 jobs:
-  build:
+  diag:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Install system packages
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            git python3 python3-pip python3-venv \
-            gcc dfu-util dfu-programmer avrdude \
-            binutils-arm-none-eabi gcc-arm-none-eabi libnewlib-arm-none-eabi dos2unix
-
       - name: Install QMK CLI
         run: pip3 install qmk
-
-      - name: Create QMK config manually
-        run: |
-          mkdir -p "$HOME/.config/qmk"
-          echo "[user]" > "$HOME/.config/qmk/qmk.ini"
-          echo "qmk_home = $HOME/qmk_firmware" >> "$HOME/.config/qmk/qmk.ini"
-          cat "$HOME/.config/qmk/qmk.ini"
 
       - name: Setup QMK
         run: qmk setup -H "$HOME/qmk_firmware" --yes
 
-      - name: Install QMK Python dependencies
+      - name: Show keyboards folder
         run: |
-          cd "$HOME/qmk_firmware"
-          pip3 install -r requirements.txt
-
-      - name: Copy keymap into QMK
-        run: |
-          cd "$HOME/qmk_firmware"
-          mkdir -p keyboards/sofle/rev1/keymaps/helios_mine
-          cp $GITHUB_WORKSPACE/*.c keyboards/sofle/rev1/keymaps/helios_mine/ || true
-          cp $GITHUB_WORKSPACE/*.h keyboards/sofle/rev1/keymaps/helios_mine/ || true
-          cp $GITHUB_WORKSPACE/rules.mk keyboards/sofle/rev1/keymaps/helios_mine/ || true
-          cp $GITHUB_WORKSPACE/config.h keyboards/sofle/rev1/keymaps/helios_mine/ || true
-
-      - name: Debug QMK tree
-        run: |
-          cd "$HOME/qmk_firmware"
-          echo "=== keyboards/sofle ==="
-          ls -R keyboards/sofle || true
-          echo "=== keyboards/sofle/rev1/keymaps ==="
-          ls -R keyboards/sofle/rev1/keymaps || true
-
-      - name: Build firmware
-        run: |
-          cd "$HOME/qmk_firmware"
-          qmk compile -kb sofle/rev1 -km helios_mine
-
-      - name: Upload firmware
-        uses: actions/upload-artifact@v4
-        with:
-          name: sofle-helios-firmware
-          path: ${{ env.HOME }}/qmk_firmware/.build
+          cd "$HOME/qmk_firmware/keyboards"
+          echo "=== keyboards ==="
+          ls -R .
