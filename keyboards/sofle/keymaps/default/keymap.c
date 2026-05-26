@@ -75,7 +75,6 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
 #define MIN_RUN_SPEED  40
 #define ANIM_FRAME_DURATION 200
 #define ANIM_SIZE 96
-#define OLED_TIMEOUT 30000
 
 static bool     isSneaking   = false;
 static bool     isJumping    = false;
@@ -193,7 +192,7 @@ bool oled_task_user(void) {
         if (current_wpm > 0) {
             oled_on();
             anim_sleep = timer_read32();
-        } else if (timer_elapsed32(anim_sleep) > OLED_TIMEOUT) {
+        } else if (timer_elapsed32(anim_sleep) > 30000) {
             oled_off();
         }
     }
