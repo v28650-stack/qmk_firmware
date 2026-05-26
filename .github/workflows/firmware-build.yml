@@ -14,67 +14,27 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v4
 
-    # -------------------------
-    # Debug: show env + home
-    # -------------------------
-    - name: Show environment info
-      run: |
-        echo "HOME is: $HOME"
-        ls -la
-        ls -la "$HOME"
-
-    # -------------------------
-    # QMK + build cache
-    # -------------------------
-    - name: Cache QMK build output
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.cache/qmk
-          ${{ env.HOME }}/qmk_firmware/.build
-        key: qmk-${{ runner.os }}-${{ hashFiles('**/*.c', '**/*.h', '**/rules.mk', '**/config.h') }}
-        restore-keys: |
-          qmk-${{ runner.os }}-
-
-    - name: Cache ARM toolchain
-      uses: actions/cache@v4
-      with:
-        path: /usr/bin/arm-none-eabi-gcc
-        key: arm-gcc-${{ runner.os }}
-
-    # -------------------------
-    # Install QMK CLI
-    # -------------------------
     - name: Install QMK CLI
       run: pip3 install qmk
 
-    # -------------------------
-    # Reset QMK config and set QMK_HOME
-    # -------------------------
-    - name: Reset QMK config and set home
+    - name: Prepare QMK config directory
       run: |
-        echo "=== RESETTING QMK CONFIG ==="
+        mkdir -p "$HOME/.config/qmk"
+        mkdir -p "$HOME/qmk_firmware"
+
+    - name: Reset QMK config
+      run: |
         rm -rf "$HOME/.qmk" || true
-        qmk config user.qmk_home="${HOME}/qmk_firmware"
-        echo "Current QMK config:"
+        qmk config user.qmk_home="$HOME/qmk_firmware"
         qmk config
 
-    # -------------------------
-    # Setup QMK
-    # -------------------------
     - name: Setup QMK
-      run: |
-        echo "=== RUNNING QMK SETUP ==="
-        echo "Expecting QMK home at: ${HOME}/qmk_firmware"
-        qmk setup -H "${HOME}/qmk_firmware" --yes
+      run: qmk setup -H "$HOME/qmk_firmware" --yes
 
     - name: Install QMK Python dependencies
       working-directory: ${{ env.HOME }}/qmk_firmware
       run: pip3 install -r requirements.txt
 
-    # -------------------------
-    # Copy your keymap
-    # -------------------------
     - name: Copy keymap into QMK
       working-directory: ${{ env.HOME }}/qmk_firmware
       run: |
@@ -84,37 +44,12 @@ jobs:
         cp $GITHUB_WORKSPACE/rules.mk keyboards/sofle/keymaps/helios_mine/ || true
         cp $GITHUB_WORKSPACE/config.h keyboards/sofle/keymaps/helios_mine/ || true
 
-    # -------------------------
-    # Build firmware
-    # -------------------------
     - name: Build firmware
       working-directory: ${{ env.HOME }}/qmk_firmware
-      run: |
-        echo "=== QMK ENVIRONMENT ==="
-        qmk doctor || true
-        echo "=== BUILD START ==="
-        qmk compile -kb sofle/rev1 -km helios_mine -e CONVERT_TO=helios
-
-    # -------------------------
-    # Debug: list build output
-    # -------------------------
-    - name: List build output
-      working-directory: ${{ env.HOME }}/qmk_firmware
-      run: ls -R .build
-
-    # -------------------------
-    # Collect artifacts
-    # -------------------------
-    - name: Stage artifact
-      working-directory: ${{ env.HOME }}/qmk_firmware
-      run: |
-        mkdir -p $GITHUB_WORKSPACE/artifact
-        find .build -type f -maxdepth 1 -print
-        cp .build/* $GITHUB_WORKSPACE/artifact/ || true
+      run: qmk compile -kb sofle/rev1 -km helios_mine -e CONVERT_TO=helios
 
     - name: Upload firmware
       uses: actions/upload-artifact@v4
       with:
         name: sofle-helios-firmware
-        path: artifact/
-        if-no-files-found: error
+        path: ${{ env.HOME }}/qmk_firmware/.build
