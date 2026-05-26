@@ -26,15 +26,13 @@ jobs:
       run: pip3 install qmk
 
     # -----------------------------------------
-    # Create QMK config manually (bypass qmk config bug)
+    # Create QMK config manually (NO heredoc indentation issues)
     # -----------------------------------------
     - name: Create QMK config manually
       run: |
         mkdir -p "$HOME/.config/qmk"
-        cat > "$HOME/.config/qmk/qmk.ini" <<EOF
-[user]
-qmk_home = $HOME/qmk_firmware
-EOF
+        echo "[user]" > "$HOME/.config/qmk/qmk.ini"
+        echo "qmk_home = $HOME/qmk_firmware" >> "$HOME/.config/qmk/qmk.ini"
         echo "Wrote manual QMK config:"
         cat "$HOME/.config/qmk/qmk.ini"
 
