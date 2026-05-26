@@ -43,11 +43,11 @@ jobs:
       - name: Copy keymap into QMK
         run: |
           cd "$HOME/qmk_firmware"
-          mkdir -p keyboards/sofle/keymaps/helios_mine
-          cp $GITHUB_WORKSPACE/*.c keyboards/sofle/keymaps/helios_mine/ || true
-          cp $GITHUB_WORKSPACE/*.h keyboards/sofle/keymaps/helios_mine/ || true
-          cp $GITHUB_WORKSPACE/rules.mk keyboards/sofle/keymaps/helios_mine/ || true
-          cp $GITHUB_WORKSPACE/config.h keyboards/sofle/keymaps/helios_mine/ || true
+          mkdir -p keyboards/sofle/rev1/keymaps/helios_mine
+          cp $GITHUB_WORKSPACE/*.c keyboards/sofle/rev1/keymaps/helios_mine/ || true
+          cp $GITHUB_WORKSPACE/*.h keyboards/sofle/rev1/keymaps/helios_mine/ || true
+          cp $GITHUB_WORKSPACE/rules.mk keyboards/sofle/rev1/keymaps/helios_mine/ || true
+          cp $GITHUB_WORKSPACE/config.h keyboards/sofle/rev1/keymaps/helios_mine/ || true
 
       - name: Build firmware
         run: |
