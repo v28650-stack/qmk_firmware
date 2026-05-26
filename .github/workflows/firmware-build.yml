@@ -34,6 +34,9 @@ jobs:
           cd "$GITHUB_WORKSPACE/qmk_firmware"
           qmk compile -kb sofle/rev1 -km default -e CONVERT_TO=helios
 
+      - name: List build output
+        run: find "$GITHUB_WORKSPACE" -name "*.uf2" | sort
+
       - name: Upload firmware
         uses: actions/upload-artifact@v4
         with:
