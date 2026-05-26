@@ -36,12 +36,13 @@ jobs:
         run: qmk setup -H "$HOME/qmk_firmware" --yes
 
       - name: Install QMK Python dependencies
-        working-directory: ${{ env.HOME }}/qmk_firmware
-        run: pip3 install -r requirements.txt
+        run: |
+          cd "$HOME/qmk_firmware"
+          pip3 install -r requirements.txt
 
       - name: Copy keymap into QMK
-        working-directory: ${{ env.HOME }}/qmk_firmware
         run: |
+          cd "$HOME/qmk_firmware"
           mkdir -p keyboards/sofle/keymaps/helios_mine
           cp $GITHUB_WORKSPACE/*.c keyboards/sofle/keymaps/helios_mine/ || true
           cp $GITHUB_WORKSPACE/*.h keyboards/sofle/keymaps/helios_mine/ || true
@@ -49,8 +50,9 @@ jobs:
           cp $GITHUB_WORKSPACE/config.h keyboards/sofle/keymaps/helios_mine/ || true
 
       - name: Build firmware
-        working-directory: ${{ env.HOME }}/qmk_firmware
-        run: qmk compile -kb sofle/rev1 -km helios_mine -e CONVERT_TO=helios
+        run: |
+          cd "$HOME/qmk_firmware"
+          qmk compile -kb sofle/rev1 -km helios_mine -e CONVERT_TO=helios
 
       - name: Upload firmware
         uses: actions/upload-artifact@v4
