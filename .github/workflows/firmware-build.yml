@@ -25,16 +25,18 @@ jobs:
     - name: Install QMK CLI
       run: pip3 install qmk
 
-    - name: Prepare QMK config directory
+    # -----------------------------------------
+    # Create QMK config manually (bypass qmk config bug)
+    # -----------------------------------------
+    - name: Create QMK config manually
       run: |
         mkdir -p "$HOME/.config/qmk"
-        mkdir -p "$HOME/qmk_firmware"
-
-    - name: Reset QMK config
-      run: |
-        rm -rf "$HOME/.qmk" || true
-        qmk config user.qmk_home="$HOME/qmk_firmware"
-        qmk config
+        cat > "$HOME/.config/qmk/qmk.ini" <<EOF
+[user]
+qmk_home = $HOME/qmk_firmware
+EOF
+        echo "Wrote manual QMK config:"
+        cat "$HOME/.config/qmk/qmk.ini"
 
     - name: Setup QMK
       run: qmk setup -H "$HOME/qmk_firmware" --yes
