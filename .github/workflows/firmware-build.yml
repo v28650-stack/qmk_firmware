@@ -14,27 +14,56 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v4
 
+    # -------------------------
+    # Install system dependencies QMK requires
+    # -------------------------
+    - name: Install system packages
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          git python3 python3-pip python3-venv \
+          gcc dfu-util dfu-programmer avrdude \
+          binutils-arm-none-eabi gcc-arm-none-eabi libnewlib-arm-none-eabi
+
+    # -------------------------
+    # Install QMK CLI
+    # -------------------------
     - name: Install QMK CLI
       run: pip3 install qmk
 
+    # -------------------------
+    # Prepare QMK config directory
+    # -------------------------
     - name: Prepare QMK config directory
       run: |
         mkdir -p "$HOME/.config/qmk"
         mkdir -p "$HOME/qmk_firmware"
 
+    # -------------------------
+    # Reset QMK config
+    # -------------------------
     - name: Reset QMK config
       run: |
         rm -rf "$HOME/.qmk" || true
         qmk config user.qmk_home="$HOME/qmk_firmware"
         qmk config
 
+    # -------------------------
+    # Setup QMK
+    # -------------------------
     - name: Setup QMK
       run: qmk setup -H "$HOME/qmk_firmware" --yes
 
+    # -------------------------
+    # Install QMK Python dependencies
+    # -------------------------
     - name: Install QMK Python dependencies
       working-directory: ${{ env.HOME }}/qmk_firmware
       run: pip3 install -r requirements.txt
 
+    # -------------------------
+    # Copy your keymap
+    # -------------------------
     - name: Copy keymap into QMK
       working-directory: ${{ env.HOME }}/qmk_firmware
       run: |
@@ -44,10 +73,16 @@ jobs:
         cp $GITHUB_WORKSPACE/rules.mk keyboards/sofle/keymaps/helios_mine/ || true
         cp $GITHUB_WORKSPACE/config.h keyboards/sofle/keymaps/helios_mine/ || true
 
+    # -------------------------
+    # Build firmware
+    # -------------------------
     - name: Build firmware
       working-directory: ${{ env.HOME }}/qmk_firmware
       run: qmk compile -kb sofle/rev1 -km helios_mine -e CONVERT_TO=helios
 
+    # -------------------------
+    # Upload firmware
+    # -------------------------
     - name: Upload firmware
       uses: actions/upload-artifact@v4
       with:
