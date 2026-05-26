@@ -17,8 +17,8 @@ jobs:
       - name: Install QMK CLI
         run: pip3 install qmk
 
-      - name: Setup QMK (solartempest fork)
-        run: qmk setup solartempest/qmk_firmware -H "$HOME/qmk_firmware" --yes
+      - name: Setup QMK (upstream)
+        run: qmk setup -H "$HOME/qmk_firmware" --yes
 
       - name: Install QMK Python dependencies
         run: |
@@ -27,16 +27,19 @@ jobs:
 
       - name: Copy keymap into QMK
         run: |
-          mkdir -p "$HOME/qmk_firmware/keyboards/solartempest/sofle/keymaps/helios_mine"
-          cp "$GITHUB_WORKSPACE"/*.c "$HOME/qmk_firmware/keyboards/solartempest/sofle/keymaps/helios_mine/" || true
-          cp "$GITHUB_WORKSPACE"/*.h "$HOME/qmk_firmware/keyboards/solartempest/sofle/keymaps/helios_mine/" || true
-          cp "$GITHUB_WORKSPACE/rules.mk" "$HOME/qmk_firmware/keyboards/solartempest/sofle/keymaps/helios_mine/" || true
-          cp "$GITHUB_WORKSPACE/config.h" "$HOME/qmk_firmware/keyboards/solartempest/sofle/keymaps/helios_mine/" || true
+          mkdir -p "$HOME/qmk_firmware/keyboards/sofle/keymaps/helios_mine"
+          cp "$GITHUB_WORKSPACE"/*.c "$HOME/qmk_firmware/keyboards/sofle/keymaps/helios_mine/" || true
+          cp "$GITHUB_WORKSPACE"/*.h "$HOME/qmk_firmware/keyboards/sofle/keymaps/helios_mine/" || true
+          cp "$GITHUB_WORKSPACE/rules.mk" "$HOME/qmk_firmware/keyboards/sofle/keymaps/helios_mine/" || true
+          cp "$GITHUB_WORKSPACE/config.h" "$HOME/qmk_firmware/keyboards/sofle/keymaps/helios_mine/" || true
+
+      - name: Verify keymap was copied
+        run: ls -la "$HOME/qmk_firmware/keyboards/sofle/keymaps/helios_mine/"
 
       - name: Build firmware
         run: |
           cd "$HOME/qmk_firmware"
-          qmk compile -kb solartempest/sofle -km helios_mine -e CONVERT_TO=helios
+          qmk compile -kb sofle/rev1 -km helios_mine -e CONVERT_TO=helios
 
       - name: Upload firmware
         uses: actions/upload-artifact@v4
