@@ -7,6 +7,14 @@ on:
   workflow_dispatch:
 
 jobs:
+- name: Debug QMK tree
+  run: |
+          cd "$HOME/qmk_firmware"
+          echo "--- keyboards/sofle ---"
+          ls -R keyboards/sofle || true
+          echo "--- keymaps under rev1 ---"
+          ls -R keyboards/sofle/rev1/keymaps || true
+
   build:
     runs-on: ubuntu-22.04
 
