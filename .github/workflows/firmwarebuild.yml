@@ -1,3 +1,9 @@
+- name: Workflow fingerprint
+      run: |
+        echo "THIS IS THE REAL BUILD.YML"
+        echo "Workflow file path: $GITHUB_WORKFLOW"
+        echo "Workflow ref: $GITHUB_REF"
+
 name: Build Sofle Helios Firmware
 
 on:
