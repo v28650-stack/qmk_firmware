@@ -1,4 +1,40 @@
-- name: List build output
+name: Firmware Build
+
+on:
+  push:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          path: qmk_firmware
+
+      - name: Install QMK CLI
+        run: pip3 install qmk
+
+      - name: Setup QMK dependencies only
+        run: |
+          cd "$GITHUB_WORKSPACE/qmk_firmware"
+          qmk setup -H "$GITHUB_WORKSPACE/qmk_firmware" --yes
+
+      - name: Install QMK Python dependencies
+        run: |
+          cd "$GITHUB_WORKSPACE/qmk_firmware"
+          pip3 install -r requirements.txt
+
+      - name: Build firmware
+        run: |
+          cd "$GITHUB_WORKSPACE/qmk_firmware"
+          qmk compile -kb sofle/rev1 -km default -e CONVERT_TO=helios
+
+      - name: List build output
         run: find "$GITHUB_WORKSPACE/qmk_firmware/.build" -type f | sort
 
       - name: Upload firmware
