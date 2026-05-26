@@ -66,8 +66,15 @@ jobs:
       run: |
         echo "=== QMK ENVIRONMENT ==="
         qmk doctor || true
-        echo "=== STARTING BUILD ==="
+        echo "=== BUILD START ==="
         qmk compile -kb sofle/rev1 -km helios_mine -e CONVERT_TO=helios
+
+    # -------------------------
+    # Debug: list build output
+    # -------------------------
+    - name: List build output
+      working-directory: ${{ env.HOME }}/qmk_firmware
+      run: ls -R .build
 
     # -------------------------
     # Collect artifacts
@@ -76,7 +83,8 @@ jobs:
       working-directory: ${{ env.HOME }}/qmk_firmware
       run: |
         mkdir -p $GITHUB_WORKSPACE/artifact
-        cp .build/*.uf2 $GITHUB_WORKSPACE/artifact/
+        find .build -type f -maxdepth 1 -print
+        cp .build/* $GITHUB_WORKSPACE/artifact/ || true
 
     - name: Upload firmware
       uses: actions/upload-artifact@v4
