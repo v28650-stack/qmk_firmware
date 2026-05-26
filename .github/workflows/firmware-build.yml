@@ -13,36 +13,29 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          path: qmk_firmware
 
       - name: Install QMK CLI
         run: pip3 install qmk
 
-      - name: Setup QMK (upstream)
-        run: qmk setup -H "$HOME/qmk_firmware" --yes
+      - name: Setup QMK dependencies only
+        run: |
+          cd "$GITHUB_WORKSPACE/qmk_firmware"
+          qmk setup -H "$GITHUB_WORKSPACE/qmk_firmware" --yes
 
       - name: Install QMK Python dependencies
         run: |
-          cd "$HOME/qmk_firmware"
+          cd "$GITHUB_WORKSPACE/qmk_firmware"
           pip3 install -r requirements.txt
-
-      - name: Copy keymap into QMK
-        run: |
-          mkdir -p "$HOME/qmk_firmware/keyboards/sofle/keymaps/helios_mine"
-          cp "$GITHUB_WORKSPACE"/*.c "$HOME/qmk_firmware/keyboards/sofle/keymaps/helios_mine/" || true
-          cp "$GITHUB_WORKSPACE"/*.h "$HOME/qmk_firmware/keyboards/sofle/keymaps/helios_mine/" || true
-          cp "$GITHUB_WORKSPACE/rules.mk" "$HOME/qmk_firmware/keyboards/sofle/keymaps/helios_mine/" || true
-          cp "$GITHUB_WORKSPACE/config.h" "$HOME/qmk_firmware/keyboards/sofle/keymaps/helios_mine/" || true
-
-      - name: Verify keymap was copied
-        run: ls -la "$HOME/qmk_firmware/keyboards/sofle/keymaps/helios_mine/"
 
       - name: Build firmware
         run: |
-          cd "$HOME/qmk_firmware"
-          qmk compile -kb sofle/rev1 -km helios_mine -e CONVERT_TO=helios
+          cd "$GITHUB_WORKSPACE/qmk_firmware"
+          qmk compile -kb sofle/rev1 -km default -e CONVERT_TO=helios
 
       - name: Upload firmware
         uses: actions/upload-artifact@v4
         with:
           name: sofle-helios-firmware
-          path: ${{ env.HOME }}/qmk_firmware/.build/*.uf2
+          path: ${{ github.workspace }}/qmk_firmware/.build/*.uf2
