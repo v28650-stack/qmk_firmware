@@ -30,6 +30,14 @@ jobs:
         cat .github/workflows/firmware-build.yml || echo "firmware-build.yml not found"
 
     # -------------------------
+    # FINGERPRINT BEFORE QMK SETUP
+    # -------------------------
+    - name: Fingerprint before QMK setup
+      run: |
+        echo "=== ABOUT TO RUN QMK SETUP ==="
+        grep -R "qmk setup" .github/workflows || echo "grep failed"
+
+    # -------------------------
     # QMK + build cache
     # -------------------------
     - name: Cache QMK build output
@@ -55,7 +63,7 @@ jobs:
       run: pip3 install qmk
 
     - name: Setup QMK
-      run: qmk setup -H ${{ env.HOME }}/qmk_firmware --yes
+      run: qmk setup -H "${{ env.HOME }}/qmk_firmware" --yes
 
     - name: Install QMK Python dependencies
       working-directory: ${{ env.HOME }}/qmk_firmware
@@ -85,4 +93,25 @@ jobs:
         qmk compile -kb sofle/rev1 -km helios_mine -e CONVERT_TO=helios
 
     # -------------------------
-    # Debug
+    # Debug: list build output
+    # -------------------------
+    - name: List build output
+      working-directory: ${{ env.HOME }}/qmk_firmware
+      run: ls -R .build
+
+    # -------------------------
+    # Collect artifacts
+    # -------------------------
+    - name: Stage artifact
+      working-directory: ${{ env.HOME }}/qmk_firmware
+      run: |
+        mkdir -p $GITHUB_WORKSPACE/artifact
+        find .build -type f -maxdepth 1 -print
+        cp .build/* $GITHUB_WORKSPACE/artifact/ || true
+
+    - name: Upload firmware
+      uses: actions/upload-artifact@v4
+      with:
+        name: sofle-helios-firmware
+        path: artifact/
+        if-no-files-found: error
