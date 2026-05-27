@@ -6,6 +6,41 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Repo (Sparse Clone)
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .
+            keyboards/sofle
+            quantum
+            drivers
+            platforms
+            builddefs
+            lib/chibios
+            lib/python
+            requirements.txt
+
+      - name: Install Compiler Tools
+        run: |
+          sudo apt-get update && sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi
+          python3 -m pip install qmk
+          python3 -m pip install -r requirements.txt
+
+      - name: Run QMK Compile
+        run: qmk compile -kb sofle/rev1 -km default -e CONVERT_TO=helios
+
+      - name: Upload Firmware Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sofle_helios_firmware
+          path: "**/*.uf2"name: Build QMK Firmware
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
       - name: Checkout Repo (Shallow Clone)
         uses: actions/checkout@v4
         with:
