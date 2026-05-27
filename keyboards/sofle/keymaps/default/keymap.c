@@ -14,7 +14,7 @@ typedef enum {
 
 static sprite_mode_t current_sprite = SPRITE_DRAGON;
 
-// Frame pointers (MUST match the names in the sprite headers)
+// Frame pointers
 static const char *dragon_frames[] = {
     dragon_frame_0,
     dragon_frame_1,
@@ -23,10 +23,9 @@ static const char *dragon_frames[] = {
     dragon_frame_4,
     dragon_frame_5,
     dragon_frame_6,
-    dragon_frame_7
+    dragon_frame_7,
 };
 
-// Bunny frame pointers
 static const char *bunny_frames[] = {
     bunny_frame_0,
     bunny_frame_1,
@@ -35,18 +34,10 @@ static const char *bunny_frames[] = {
     bunny_frame_4,
     bunny_frame_5,
     bunny_frame_6,
-    bunny_frame_7
+    bunny_frame_7,
 };
 
-#define FRAME_COUNT 8
-#define FRAME_DELAY 200  // milliseconds between frames
-#define ANIM_SIZE 128    // 32x32 pixels = 1024 bits / 8 = 128 bytes per frame
-
-// Custom keycodes
-enum custom_keycodes {
-    SPRITE_SW = SAFE_RANGE,  // Switch sprite
-};
-
+// Keymap layers
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [0] = LAYOUT(
         KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                     KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_BSPC,
@@ -78,75 +69,23 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     )
 };
 
-// Render current sprite
+// OLED animation logic
 void render_sprite(void) {
-    // Update animation frame
-    if (timer_elapsed32(anim_timer) > FRAME_DELAY) {
+    const char **frames = current_sprite == SPRITE_DRAGON ? dragon_frames : bunny_frames;
+    oled_write_raw_P(frames[current_frame], 128 * 4);
+}
+
+bool oled_task_user(void) {
+    if (timer_elapsed32(anim_timer) > 200) {
         anim_timer = timer_read32();
-        current_frame = (current_frame + 1) % FRAME_COUNT;
+        current_frame = (current_frame + 1) % 8;
     }
-    
-    // Display the current sprite at position (0, 0)
-    oled_set_cursor(0, 0);
-    
-    if (current_sprite == SPRITE_DRAGON) {
-        oled_write_raw_P(dragon_frames[current_frame], ANIM_SIZE);
-    } else {
-        oled_write_raw_P(bunny_frames[current_frame], ANIM_SIZE);
-    }
-}
 
-// Switch between sprites
-void switch_sprite(void) {
-    current_sprite = (current_sprite == SPRITE_DRAGON) ? SPRITE_BUNNY : SPRITE_DRAGON;
-    current_frame = 0;  // Reset animation
-    anim_timer = timer_read32();
-}
-
-// OLED task
-void oled_task_user(void) {
-    // Render the sprite animation
     render_sprite();
-    
-    // Display sprite name on the right side (after the 32px sprite)
-    oled_set_cursor(8, 0);
-    if (current_sprite == SPRITE_DRAGON) {
-        oled_write_P(PSTR("Dragon"), false);
-    } else {
-        oled_write_P(PSTR("Bunny "), false);
-    }
-    
-    // Display WPM if enabled
-    oled_set_cursor(8, 1);
-    oled_write_P(PSTR("WPM: "), false);
-    uint8_t n = get_current_wpm();
-    char wpm_str[4];
-    wpm_str[3] = '\0';
-    wpm_str[2] = '0' + n % 10;
-    wpm_str[1] = '0' + (n /= 10) % 10;
-    wpm_str[0] = '0' + n / 10;
-    oled_write(wpm_str, false);
-}
-
-// Custom keycode handling
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case SPRITE_SW:
-            if (record->event.pressed) {
-                switch_sprite();
-            }
-            return false;
-        default:
-            return true;
-    }
-}
-
-// Encoder
-bool encoder_update_user(uint8_t index, bool clockwise) {
-    if (clockwise) {
-        tap_code(KC_VOLU);
-    } else {
-        tap_code(KC_VOLD);
-    }
     return false;
+}
+
+// Encoder update (empty, since we disabled encoders)
+bool encoder_update_user(uint8_t index, bool clockwise) {
+    return true;
 }
