@@ -15,6 +15,7 @@ jobs:
             drivers
             platforms
             builddefs
+            data
             lib
             requirements.txt
 
