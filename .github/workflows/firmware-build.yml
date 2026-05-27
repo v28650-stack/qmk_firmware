@@ -1,4 +1,4 @@
-name: QMK Firmware Build
+name: Build QMK Firmware
 
 on: [push, pull_request]
 
@@ -6,35 +6,30 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repo
+      - name: Checkout Repo (Shallow Clone)
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: false # Skip automatic submodule processing to save cloning time
 
-      - name: Cache QMK Toolchain & Objects
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.build
-            qamak_firmware/.build
-            qmk_firmware/lib
-          key: ${{ runner.os }}-qmk-${{ hashFiles('**/rules.mk', '**/config.h') }}
-          restore-keys: |
-            ${{ runner.os }}-qmk-
-
-      - name: Install QMK CLI and Dependencies
+      - name: Initialize Specific Submodules Only
         run: |
-          python3 -m pip install --user qmk
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          git submodule update --init --depth 1 lib/pigweed
+          git submodule update --init --depth 1 lib/python
 
-      - name: Setup QMK
-        run: qmk setup -y
+      - name: Install QMK CLI Dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi
+          python3 -m pip install qmk
 
-      - name: Compile Firmware
-        run: qmk compile -kb sofle/rev1 -km default -e CONVERT_TO=helios
+      - name: Run QMK Compile
+        run: |
+          qmk compile -kb sofle/rev1 -km default -e CONVERT_TO=helios
 
-      - name: Upload Firmware Binary
-        uses: actions/upload-artifact@v4
+      - name: Upload Firmware Artifacts
+        uses: actions/artifacts/upload@v4
         with:
           name: sofle_helios_firmware
-          path: "**/*.uf2"
+          path: |
+            *.hex
+            *.bin
+            *.uf2
