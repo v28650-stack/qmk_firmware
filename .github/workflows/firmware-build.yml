@@ -5,17 +5,10 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
+    container: ghcr.io/qmk/qmk_cli
     steps:
-      - name: Checkout Repo (Full Clone)
+      - name: Checkout Repo
         uses: actions/checkout@v4
-        with:
-          submodules: false
-
-      - name: Install Compiler Tools
-        run: |
-          sudo apt-get update && sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi
-          python3 -m pip install qmk
-          python3 -m pip install -r requirements.txt
 
       - name: Run QMK Compile
         run: qmk compile -kb sofle/rev1 -km default -e CONVERT_TO=helios
