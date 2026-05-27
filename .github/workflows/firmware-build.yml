@@ -6,20 +6,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repo (Sparse Clone)
+      - name: Checkout Repo (Full Clone)
         uses: actions/checkout@v4
         with:
-          sparse-checkout: |
-            keyboards/sofle
-            layouts
-            quantum
-            drivers
-            platforms
-            builddefs
-            data
-            util
-            lib
-            requirements.txt
+          submodules: false
 
       - name: Install Compiler Tools
         run: |
