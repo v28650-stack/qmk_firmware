@@ -33,18 +33,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     )
 };
 
-#ifdef ENCODER_MAP_ENABLE
-const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][2] = {
-    // Layer 0 (Base Layer): Left side volume dial mapping
-    [0] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU) },
-    // Layer 1 (Lower Layer): Left side volume dial fallback
-    [1] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU) },
-    // Layer 2 (Raise Layer): Left side volume dial fallback
-    [2] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU) },
-    // Layer 3 (Adjust Layer): Left side volume dial fallback
-    [3] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU) }
-};
-#endif
+bool encoder_update_user(uint8_t index, bool clockwise) {
+    if (clockwise) {
+        tap_code(KC_A);
+    } else {
+        tap_code(KC_B);
+    }
+    return false;
+}
 
 #ifdef OLED_ENABLE
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
