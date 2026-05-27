@@ -5,10 +5,10 @@
 #undef ENCODERS_PAD_B
 #undef ENCODER_RESOLUTION
 
-// Force standard RP2040 custom pin layouts
-#define ENCODERS_PAD_A { F4, F5 }
-#define ENCODERS_PAD_B { F1, F0 }
-#define ENCODER_RESOLUTION 4
+// Correct virtual pin mappings used by the QMK helios converter
+#define ENCODERS_PAD_A { F5, F4 }
+#define ENCODERS_PAD_B { F4, F5 }
+#define ENCODER_RESOLUTION 2
 
 // De-register layout maps to enforce direct user callbacks
 #undef ENCODER_MAP_ENABLE
