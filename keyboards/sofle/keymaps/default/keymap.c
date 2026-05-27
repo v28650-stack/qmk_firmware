@@ -34,12 +34,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     )
 };
 
-/* Encoder test (hard signal output) */
+/* HARDWARE TEST: encoder mapped to real keyboard pins */
 bool encoder_update_user(uint8_t index, bool clockwise) {
     if (clockwise) {
-        tap_code(KC_1);
+        tap_code(KC_VOLU);
     } else {
-        tap_code(KC_2);
+        tap_code(KC_VOLD);
     }
     return false;
 }
