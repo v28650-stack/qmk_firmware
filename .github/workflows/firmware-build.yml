@@ -9,12 +9,11 @@ jobs:
       - name: Checkout Repo (Shallow Clone)
         uses: actions/checkout@v4
         with:
-          submodules: false # Skip automatic submodule processing to save cloning time
+          submodules: false # Handled manually below for maximum speed
 
-      - name: Initialize Specific Submodules Only
+      - name: Fast Shallow Submodule Sync
         run: |
-          git submodule update --init --depth 1 lib/pigweed
-          git submodule update --init --depth 1 lib/python
+          git submodule update --init --recursive --progress --depth 1
 
       - name: Install QMK CLI Dependencies
         run: |
@@ -22,14 +21,10 @@ jobs:
           python3 -m pip install qmk
 
       - name: Run QMK Compile
-        run: |
-          qmk compile -kb sofle/rev1 -km default -e CONVERT_TO=helios
+        run: qmk compile -kb sofle/rev1 -km default -e CONVERT_TO=helios
 
       - name: Upload Firmware Artifacts
-        uses: actions/artifacts/upload@v4
+        uses: actions/upload-artifact@v4
         with:
           name: sofle_helios_firmware
-          path: |
-            *.hex
-            *.bin
-            *.uf2
+          path: "**/*.uf2"
