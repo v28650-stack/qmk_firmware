@@ -16,6 +16,7 @@ jobs:
             platforms
             builddefs
             data
+            util
             lib
             requirements.txt
 
