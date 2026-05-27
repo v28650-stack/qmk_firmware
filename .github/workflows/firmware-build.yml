@@ -10,6 +10,9 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v4
 
+      - name: Install Container Dependencies
+        run: /opt/uv/tools/qmk/bin/python3 -m pip install -r requirements.txt
+
       - name: Run QMK Compile
         run: qmk compile -kb sofle/rev1 -km default -e CONVERT_TO=helios
 
