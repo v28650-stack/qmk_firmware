@@ -1,4 +1,9 @@
 #pragma once
 
-// Force QMK to recognize custom programmable encoder mappings over base layout definitions
-#define ENCODERS_USER_DEFINED
+// Explicitly define the physical encoder pins for the Sofle Rev1 layout
+#define ENCODERS_PAD_A { F4, F5 }
+#define ENCODERS_PAD_B { F1, F0 }
+#define ENCODER_RESOLUTION 4
+
+// Tear down the base firmware's hardcoded RGB encoder definitions
+#undef ENCODER_MAP_ENABLE
