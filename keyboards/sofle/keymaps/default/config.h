@@ -2,10 +2,5 @@
 
 #define DYNAMIC_KEYMAP_EEPROM_MAX_ADDR 4095
 
-// Fix for Pico SDK macro conflicts
-#undef MAX
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
-
-// Encoder configuration for RP2040 Helios
-#define ENCODERS_PAD_A { GP18 }
-#define ENCODERS_PAD_B { GP19 }
+// Disable encoder to avoid conflicts with Pico SDK
+#define ENCODER_ENABLE no
