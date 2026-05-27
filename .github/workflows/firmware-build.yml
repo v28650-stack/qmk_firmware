@@ -9,6 +9,8 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Fix Git Workspace Ownership
         run: git config --global --add safe.directory '*'
