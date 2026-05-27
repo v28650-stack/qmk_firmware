@@ -11,6 +11,7 @@ jobs:
         with:
           sparse-checkout: |
             keyboards/sofle
+            layouts
             quantum
             drivers
             platforms
