@@ -9,7 +9,7 @@ jobs:
       - name: Checkout Repo (Shallow Clone)
         uses: actions/checkout@v4
         with:
-          submodules: false # Handled manually below for maximum speed
+          submodules: false
 
       - name: Fast Shallow Submodule Sync
         run: |
@@ -19,6 +19,7 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi
           python3 -m pip install qmk
+          python3 -m pip install -r requirements.txt
 
       - name: Run QMK Compile
         run: qmk compile -kb sofle/rev1 -km default -e CONVERT_TO=helios
