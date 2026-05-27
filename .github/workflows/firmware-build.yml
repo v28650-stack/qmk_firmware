@@ -1,43 +1,42 @@
-name: Firmware Build
-on:
-  push:
-    branches:
-      - '**'
-  workflow_dispatch:
+name: QMK Firmware Build
+
+on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout Repo
         uses: actions/checkout@v4
         with:
-          path: qmk_firmware
+          submodules: recursive
 
-      - name: Install QMK CLI
-        run: pip3 install qmk
+      - name: Cache QMK Toolchain & Objects
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.build
+            qamak_firmware/.build
+            qmk_firmware/lib
+          key: ${{ runner.os }}-qmk-${{ hashFiles('**/rules.mk', '**/config.h') }}
+          restore-keys: |
+            ${{ runner.os }}-qmk-
 
-      - name: Setup QMK dependencies
+      - name: Install QMK CLI and Dependencies
         run: |
-          cd "$GITHUB_WORKSPACE/qmk_firmware"
-          qmk setup -H "$GITHUB_WORKSPACE/qmk_firmware" --yes
+          python3 -m pip install --user qmk
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Install QMK Python dependencies
-        run: |
-          cd "$GITHUB_WORKSPACE/qmk_firmware"
-          pip3 install -r requirements.txt
+      - name: Setup QMK
+        run: qmk setup -y
 
-      - name: Build firmware
+      - name: Compile Firmware
         run: |
           cd "$GITHUB_WORKSPACE/qmk_firmware"
           qmk compile -kb sofle/rev1 -km default -e CONVERT_TO=helios
 
-      - name: Locate and Extract Firmware
-        run: |
-          cp /home/runner/work/qmk_firmware/qmk_firmware/qmk_firmware/.build/sofle_rev1_default_helios.uf2 "$GITHUB_WORKSPACE/sofle_firmware.uf2"
-
-      - name: Upload firmware
+      - name: Upload Firmware Binary
         uses: actions/upload-artifact@v4
         with:
-          name: sofle-helios-via-firmware
-          path: ${{ github.workspace }}/sofle_firmware.uf2
+          name: sofle_helios_firmware
+          path: qmk_firmware/.build/*.uf2
