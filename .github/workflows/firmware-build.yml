@@ -1,5 +1,4 @@
 name: Firmware Build
-
 on:
   push:
     branches:
@@ -9,7 +8,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -19,7 +17,7 @@ jobs:
       - name: Install QMK CLI
         run: pip3 install qmk
 
-      - name: Setup QMK dependencies only
+      - name: Setup QMK dependencies
         run: |
           cd "$GITHUB_WORKSPACE/qmk_firmware"
           qmk setup -H "$GITHUB_WORKSPACE/qmk_firmware" --yes
@@ -34,11 +32,12 @@ jobs:
           cd "$GITHUB_WORKSPACE/qmk_firmware"
           qmk compile -kb sofle/rev1 -km default -e CONVERT_TO=helios
 
-      - name: Copy firmware to workspace root
-        run: cp /home/runner/work/qmk_firmware/qmk_firmware/qmk_firmware/.build/sofle_rev1_default_helios.uf2 "$GITHUB_WORKSPACE/sofle_rev1_default_helios.uf2"
+      - name: Locate and Extract Firmware
+        run: |
+          cp /home/runner/work/qmk_firmware/qmk_firmware/qmk_firmware/.build/sofle_rev1_default_helios.uf2 "$GITHUB_WORKSPACE/sofle_firmware.uf2"
 
       - name: Upload firmware
         uses: actions/upload-artifact@v4
         with:
-          name: sofle-helios-firmware
-          path: ${{ github.workspace }}/sofle_rev1_default_helios.uf2
+          name: sofle-helios-via-firmware
+          path: ${{ github.workspace }}/sofle_firmware.uf2
