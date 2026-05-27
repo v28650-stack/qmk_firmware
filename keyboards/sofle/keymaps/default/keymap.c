@@ -15,7 +15,7 @@ typedef enum {
 static sprite_mode_t current_sprite = SPRITE_DRAGON;
 
 // Frame pointers (MUST match the names in the sprite headers)
-static const uint8_t *dragon_frames[] = {
+static const char *dragon_frames[] = {
     dragon_frame_0,
     dragon_frame_1,
     dragon_frame_2,
@@ -27,7 +27,7 @@ static const uint8_t *dragon_frames[] = {
 };
 
 // Bunny frame pointers
-static const char PROGMEM *bunny_frames[] = {
+static const char *bunny_frames[] = {
     bunny_frame_0,
     bunny_frame_1,
     bunny_frame_2,
