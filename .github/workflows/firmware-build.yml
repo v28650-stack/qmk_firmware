@@ -10,6 +10,9 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v4
 
+      - name: Fix Git Workspace Ownership
+        run: git config --global --add safe.directory '*'
+
       - name: Install Container Dependencies
         run: /opt/uv/tools/qmk/bin/python3 -m pip install -r requirements.txt
 
