@@ -1,4 +1,0 @@
-#pragma once
-
-#define DYNAMIC_KEYMAP_EEPROM_MAX_ADDR 4095
-#define OLED_DISPLAY_128X32
